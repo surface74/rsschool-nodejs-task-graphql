@@ -11,6 +11,7 @@ import {
   GraphQLString,
 } from 'graphql';
 import { UUIDType } from './types/uuid.js';
+import { PrismaClient } from '@prisma/client';
 
 const MemberTypeIdEnum = new GraphQLEnumType({
   name: 'MemberTypeId',
@@ -70,6 +71,8 @@ const RootQueryTypeType = new GraphQLObjectType({
   fields: {
     memberTypes: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(MemberTypeType))),
+      resolve: (_obj, _args, context: PrismaClient, _info) =>
+        context.memberType.findMany(),
     },
     memberType: {
       type: MemberTypeType,
