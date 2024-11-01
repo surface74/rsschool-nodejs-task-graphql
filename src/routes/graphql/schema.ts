@@ -3,6 +3,8 @@ import {
   GraphQLEnumType,
   GraphQLFloat,
   GraphQLInt,
+  GraphQLInterfaceType,
+  GraphQLList,
   GraphQLNonNull,
   GraphQLObjectType,
   GraphQLSchema,
@@ -46,20 +48,57 @@ const ProfileType = new GraphQLObjectType({
   },
 });
 
-export const ArtistSchema: GraphQLSchema = new GraphQLSchema({
-  query: RootQueryType,
+const UserInterface: GraphQLInterfaceType = new GraphQLInterfaceType({
+  name: 'User',
+  fields: () => ({
+    id: { type: new GraphQLNonNull(UUIDType) },
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    balance: { type: new GraphQLNonNull(GraphQLFloat) },
+    profile: { type: ProfileType },
+    posts: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(PostType))) },
+    userSubscribedTo: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserInterface))),
+    },
+    subscribedToUser: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserInterface))),
+    },
+  }),
 });
 
-// https://graphql-js.org/api/class/GraphQLObjectType
+const RootQueryTypeType = new GraphQLObjectType({
+  name: 'RootQueryType',
+  fields: {
+    memberTypes: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(MemberTypeType))),
+    },
+    memberType: {
+      type: MemberTypeType,
+      args: {
+        id: { type: new GraphQLNonNull(MemberTypeIdEnum) },
+      },
+    },
+    users: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserInterface))),
+    },
+    user: {
+      type: UserInterface,
+      args: {
+        id: { type: new GraphQLNonNull(UUIDType) },
+      },
+    },
+    posts: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(PostType))) },
+    profiles: {
+      type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ProfileType))),
+    },
+    profile: {
+      type: ProfileType,
+      args: {
+        id: { type: new GraphQLNonNull(UUIDType) },
+      },
+    },
+  },
+});
 
-// const RootQueryType = new GraphQLObjectType({
-//   name: 'Query',
-//   fields: {
-//     testString: {
-//       type: GraphQLString,
-//       resolve: async () => {
-//         return 'Hello world';
-//       },
-//     },
-//   },
-// });
+export const ArtistSchema: GraphQLSchema = new GraphQLSchema({
+  query: RootQueryTypeType,
+});
