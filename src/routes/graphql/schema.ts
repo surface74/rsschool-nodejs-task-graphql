@@ -2,6 +2,7 @@ import {
   GraphQLBoolean,
   GraphQLEnumType,
   GraphQLFloat,
+  GraphQLInputObjectType,
   GraphQLInt,
   GraphQLList,
   GraphQLNonNull,
@@ -10,7 +11,12 @@ import {
   GraphQLString,
 } from 'graphql';
 import { UUIDType } from './types/uuid.js';
-import { GraphQLContext } from './types/graphql-context.js';
+import {
+  DbCreatePostInput,
+  DbCreateProfileInput,
+  DbCreateUserInput,
+  DbContext,
+} from './types/graphql-db.js';
 import { MemberTypeId } from '../member-types/schemas.js';
 
 const MemberTypeIdEnum = new GraphQLEnumType({
@@ -47,11 +53,7 @@ const ProfileType = new GraphQLObjectType({
     yearOfBirth: { type: GraphQLInt },
     memberType: {
       type: new GraphQLNonNull(MemberTypeType),
-      resolve: async (
-        source: { memberTypeId: string },
-        _args,
-        context: GraphQLContext,
-      ) => {
+      resolve: async (source: { memberTypeId: string }, _args, context: DbContext) => {
         const data = await context.db.memberType.findUnique({
           where: {
             id: source.memberTypeId,
@@ -71,7 +73,7 @@ const UserType: GraphQLObjectType = new GraphQLObjectType({
     balance: { type: new GraphQLNonNull(GraphQLFloat) },
     profile: {
       type: ProfileType,
-      resolve: async (source: { id: string }, _args, context: GraphQLContext) => {
+      resolve: async (source: { id: string }, _args, context: DbContext) => {
         const data = await context.db.profile.findUnique({
           where: {
             userId: source.id,
@@ -82,7 +84,7 @@ const UserType: GraphQLObjectType = new GraphQLObjectType({
     },
     posts: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(PostType))),
-      resolve: async (source: { id: string }, _args, context: GraphQLContext) => {
+      resolve: async (source: { id: string }, _args, context: DbContext) => {
         const data = await context.db.post.findMany({
           where: {
             authorId: source.id,
@@ -93,7 +95,7 @@ const UserType: GraphQLObjectType = new GraphQLObjectType({
     },
     userSubscribedTo: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
-      resolve: async (source: { id: string }, _args, context: GraphQLContext) => {
+      resolve: async (source: { id: string }, _args, context: DbContext) => {
         const data = await context.db.user.findMany({
           where: {
             subscribedToUser: {
@@ -108,7 +110,7 @@ const UserType: GraphQLObjectType = new GraphQLObjectType({
     },
     subscribedToUser: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
-      resolve: async (source: { id: string }, _args, context: GraphQLContext) => {
+      resolve: async (source: { id: string }, _args, context: DbContext) => {
         const data = await context.db.user.findMany({
           where: {
             userSubscribedTo: {
@@ -129,7 +131,7 @@ const RootQueryTypeType = new GraphQLObjectType({
   fields: {
     memberTypes: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(MemberTypeType))),
-      resolve: (_obj, _args, context: GraphQLContext) => {
+      resolve: (_obj, _args, context: DbContext) => {
         return context.db.memberType.findMany();
       },
     },
@@ -138,7 +140,7 @@ const RootQueryTypeType = new GraphQLObjectType({
       args: {
         id: { type: new GraphQLNonNull(MemberTypeIdEnum) },
       },
-      resolve: async (_obj, args: { id: MemberTypeId }, context: GraphQLContext) => {
+      resolve: async (_obj, args: { id: MemberTypeId }, context: DbContext) => {
         const data = await context.db.memberType.findUnique({
           where: {
             id: args.id,
@@ -149,7 +151,7 @@ const RootQueryTypeType = new GraphQLObjectType({
     },
     users: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
-      resolve: (_obj, _args, context: GraphQLContext) => {
+      resolve: (_obj, _args, context: DbContext) => {
         return context.db.user.findMany();
       },
     },
@@ -158,7 +160,7 @@ const RootQueryTypeType = new GraphQLObjectType({
       args: {
         id: { type: new GraphQLNonNull(UUIDType) },
       },
-      resolve: async (_obj, args: { id: string }, context: GraphQLContext) => {
+      resolve: async (_obj, args: { id: string }, context: DbContext) => {
         const data = await context.db.user.findUnique({
           where: {
             id: args.id,
@@ -169,7 +171,7 @@ const RootQueryTypeType = new GraphQLObjectType({
     },
     posts: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(PostType))),
-      resolve: (_obj, _args, context: GraphQLContext) => {
+      resolve: (_obj, _args, context: DbContext) => {
         return context.db.post.findMany();
       },
     },
@@ -178,7 +180,7 @@ const RootQueryTypeType = new GraphQLObjectType({
       args: {
         id: { type: new GraphQLNonNull(UUIDType) },
       },
-      resolve: async (_obj, args: { id: string }, context: GraphQLContext, _info) => {
+      resolve: async (_obj, args: { id: string }, context: DbContext, _info) => {
         const data = await context.db.post.findUnique({
           where: {
             id: args.id,
@@ -189,7 +191,7 @@ const RootQueryTypeType = new GraphQLObjectType({
     },
     profiles: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ProfileType))),
-      resolve: (_obj, _args, context: GraphQLContext) => {
+      resolve: (_obj, _args, context: DbContext) => {
         return context.db.profile.findMany();
       },
     },
@@ -198,7 +200,7 @@ const RootQueryTypeType = new GraphQLObjectType({
       args: {
         id: { type: new GraphQLNonNull(UUIDType) },
       },
-      resolve: async (_obj, args: { id: string }, context: GraphQLContext) => {
+      resolve: async (_obj, args: { id: string }, context: DbContext) => {
         const data = await context.db.profile.findUnique({
           where: {
             id: args.id,
@@ -210,6 +212,107 @@ const RootQueryTypeType = new GraphQLObjectType({
   },
 });
 
+const ChangePostInputType = new GraphQLInputObjectType({
+  name: 'ChangePostInput',
+  fields: {
+    title: { type: GraphQLString },
+    content: { type: GraphQLString },
+  },
+});
+
+const ChangeProfileInputType = new GraphQLInputObjectType({
+  name: 'ChangeProfileInput',
+  fields: {
+    isMale: { type: GraphQLBoolean },
+    yearOfBirth: { type: GraphQLInt },
+    memberTypeId: { type: MemberTypeIdEnum },
+  },
+});
+
+const ChangeUserInputType = new GraphQLInputObjectType({
+  name: 'ChangeUserInput',
+  fields: {
+    name: { type: GraphQLString },
+    balance: { type: GraphQLFloat },
+  },
+});
+
+const CreatePostInputType = new GraphQLInputObjectType({
+  name: 'CreatePostInput',
+  fields: {
+    title: { type: new GraphQLNonNull(GraphQLString) },
+    content: { type: new GraphQLNonNull(GraphQLString) },
+    authorId: { type: new GraphQLNonNull(UUIDType) },
+  },
+});
+
+const CreateProfileInputType = new GraphQLInputObjectType({
+  name: 'CreateProfileInput',
+  fields: {
+    isMale: { type: new GraphQLNonNull(GraphQLBoolean) },
+    yearOfBirth: { type: new GraphQLNonNull(GraphQLInt) },
+    userId: { type: new GraphQLNonNull(UUIDType) },
+    memberTypeId: { type: new GraphQLNonNull(MemberTypeIdEnum) },
+  },
+});
+
+const CreateUserInputType = new GraphQLInputObjectType({
+  name: 'CreateUserInput',
+  fields: {
+    name: { type: new GraphQLNonNull(GraphQLString) },
+    balance: { type: new GraphQLNonNull(GraphQLFloat) },
+  },
+});
+
+const MutationsType = new GraphQLObjectType({
+  name: 'Mutations',
+  fields: () => ({
+    createUser: {
+      type: new GraphQLNonNull(UserType),
+      args: {
+        dto: { type: new GraphQLNonNull(CreateUserInputType) },
+      },
+      resolve: (_obj, args: { dto: DbCreateUserInput }, context: DbContext) => {
+        const data = context.db.user.create({
+          data: args.dto,
+        });
+        return data;
+      },
+    },
+    createProfile: {
+      type: new GraphQLNonNull(ProfileType),
+      args: {
+        dto: { type: new GraphQLNonNull(CreateProfileInputType) },
+      },
+      resolve: (
+        _obj,
+        args: {
+          dto: DbCreateProfileInput;
+        },
+        context: DbContext,
+      ) => {
+        const data = context.db.profile.create({
+          data: args.dto,
+        });
+        return data;
+      },
+    },
+    createPost: {
+      type: new GraphQLNonNull(PostType),
+      args: {
+        dto: { type: new GraphQLNonNull(CreatePostInputType) },
+      },
+      resolve: (_obj, args: { dto: DbCreatePostInput }, context: DbContext) => {
+        const data = context.db.post.create({
+          data: args.dto,
+        });
+        return data;
+      },
+    },
+  }),
+});
+
 export const ArtistSchema: GraphQLSchema = new GraphQLSchema({
   query: RootQueryTypeType,
+  mutation: MutationsType,
 });
