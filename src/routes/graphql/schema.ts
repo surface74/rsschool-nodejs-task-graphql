@@ -18,6 +18,7 @@ import {
   DbContext,
   DbChangeProfileInput,
   DbChangeUserInput,
+  DbChangePostInput,
 } from './types/graphql-db.js';
 import { MemberTypeId } from '../member-types/schemas.js';
 
@@ -311,14 +312,28 @@ const MutationsType = new GraphQLObjectType({
         return data;
       },
     },
+    changePost: {
+      type: new GraphQLNonNull(PostType),
+      args: {
+        id: { type: new GraphQLNonNull(UUIDType) },
+        dto: { type: new GraphQLNonNull(ChangePostInputType) },
+      },
+      resolve: async (_obj, args: DbChangePostInput, context: DbContext) => {
+        const data = await context.db.post.update({
+          where: { id: args.id },
+          data: args.dto,
+        });
+        return data;
+      },
+    },
     changeProfile: {
       type: new GraphQLNonNull(ProfileType),
       args: {
         id: { type: new GraphQLNonNull(UUIDType) },
         dto: { type: new GraphQLNonNull(ChangeProfileInputType) },
       },
-      resolve: (_obj, args: DbChangeProfileInput, context: DbContext) => {
-        const data = context.db.profile.update({
+      resolve: async (_obj, args: DbChangeProfileInput, context: DbContext) => {
+        const data = await context.db.profile.update({
           where: { id: args.id },
           data: args.dto,
         });
@@ -331,12 +346,48 @@ const MutationsType = new GraphQLObjectType({
         id: { type: new GraphQLNonNull(UUIDType) },
         dto: { type: new GraphQLNonNull(ChangeUserInputType) },
       },
-      resolve: (_obj, args: DbChangeUserInput, context: DbContext) => {
-        const data = context.db.user.update({
+      resolve: async (_obj, args: DbChangeUserInput, context: DbContext) => {
+        const data = await context.db.user.update({
           where: { id: args.id },
           data: args.dto,
         });
         return data;
+      },
+    },
+    deleteUser: {
+      type: new GraphQLNonNull(GraphQLString),
+      args: {
+        id: { type: new GraphQLNonNull(UUIDType) },
+      },
+      resolve: async (_obj, args: { id: string }, context: DbContext) => {
+        const data = await context.db.user.delete({
+          where: { id: args.id },
+        });
+        return JSON.stringify(data);
+      },
+    },
+    deletePost: {
+      type: new GraphQLNonNull(GraphQLString),
+      args: {
+        id: { type: new GraphQLNonNull(UUIDType) },
+      },
+      resolve: async (_obj, args: { id: string }, context: DbContext) => {
+        const data = await context.db.post.delete({
+          where: { id: args.id },
+        });
+        return JSON.stringify(data);
+      },
+    },
+    deleteProfile: {
+      type: new GraphQLNonNull(GraphQLString),
+      args: {
+        id: { type: new GraphQLNonNull(UUIDType) },
+      },
+      resolve: async (_obj, args: { id: string }, context: DbContext) => {
+        const data = await context.db.profile.delete({
+          where: { id: args.id },
+        });
+        return JSON.stringify(data);
       },
     },
   }),

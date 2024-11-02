@@ -25,9 +25,9 @@ export type DbCreatePostInput = {
 export type DbChangeProfileInput = {
   id: string;
   dto: {
-    isMale?: boolean | undefined;
-    yearOfBirth?: number | undefined;
-    memberTypeId?: string | undefined;
+    isMale?: boolean;
+    yearOfBirth?: number;
+    memberTypeId?: string;
   };
 };
 
@@ -36,5 +36,13 @@ export type DbChangeUserInput = {
   dto: {
     name?: string;
     balance?: number;
+  };
+};
+
+export type DbChangePostInput = {
+  id: string;
+  dto: {
+    content?: string;
+    title?: string;
   };
 };
