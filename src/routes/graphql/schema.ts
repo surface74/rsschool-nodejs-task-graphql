@@ -16,6 +16,8 @@ import {
   DbCreateProfileInput,
   DbCreateUserInput,
   DbContext,
+  DbChangeProfileInput,
+  DbChangeUserInput,
 } from './types/graphql-db.js';
 import { MemberTypeId } from '../member-types/schemas.js';
 
@@ -304,6 +306,34 @@ const MutationsType = new GraphQLObjectType({
       },
       resolve: (_obj, args: { dto: DbCreatePostInput }, context: DbContext) => {
         const data = context.db.post.create({
+          data: args.dto,
+        });
+        return data;
+      },
+    },
+    changeProfile: {
+      type: new GraphQLNonNull(ProfileType),
+      args: {
+        id: { type: new GraphQLNonNull(UUIDType) },
+        dto: { type: new GraphQLNonNull(ChangeProfileInputType) },
+      },
+      resolve: (_obj, args: DbChangeProfileInput, context: DbContext) => {
+        const data = context.db.profile.update({
+          where: { id: args.id },
+          data: args.dto,
+        });
+        return data;
+      },
+    },
+    changeUser: {
+      type: new GraphQLNonNull(UserType),
+      args: {
+        id: { type: new GraphQLNonNull(UUIDType) },
+        dto: { type: new GraphQLNonNull(ChangeUserInputType) },
+      },
+      resolve: (_obj, args: DbChangeUserInput, context: DbContext) => {
+        const data = context.db.user.update({
+          where: { id: args.id },
           data: args.dto,
         });
         return data;

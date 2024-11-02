@@ -21,3 +21,20 @@ export type DbCreatePostInput = {
   content: string;
   authorId: string;
 };
+
+export type DbChangeProfileInput = {
+  id: string;
+  dto: {
+    isMale?: boolean | undefined;
+    yearOfBirth?: number | undefined;
+    memberTypeId?: string | undefined;
+  };
+};
+
+export type DbChangeUserInput = {
+  id: string;
+  dto: {
+    name?: string;
+    balance?: number;
+  };
+};
