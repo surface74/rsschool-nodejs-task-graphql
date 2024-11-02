@@ -20,7 +20,7 @@ const plugin: FastifyPluginAsyncTypebox = async (fastify) => {
         schema: ArtistSchema,
         source: req.body.query,
         variableValues: req.body.variables,
-        contextValue: prisma,
+        contextValue: { db: prisma },
       });
     },
   });
