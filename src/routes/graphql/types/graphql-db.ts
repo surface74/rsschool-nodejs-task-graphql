@@ -46,3 +46,8 @@ export type DbChangePostInput = {
     title?: string;
   };
 };
+
+export type DbSubscribeToInput = {
+  userId: string;
+  authorId: string;
+};

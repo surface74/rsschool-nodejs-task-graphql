@@ -19,6 +19,7 @@ import {
   DbChangeProfileInput,
   DbChangeUserInput,
   DbChangePostInput,
+  DbSubscribeToInput,
 } from './types/graphql-db.js';
 import { MemberTypeId } from '../member-types/schemas.js';
 
@@ -386,6 +387,51 @@ const MutationsType = new GraphQLObjectType({
       resolve: async (_obj, args: { id: string }, context: DbContext) => {
         const data = await context.db.profile.delete({
           where: { id: args.id },
+        });
+        return JSON.stringify(data);
+      },
+    },
+
+    subscribeTo: {
+      type: new GraphQLNonNull(GraphQLString),
+      args: {
+        userId: { type: new GraphQLNonNull(UUIDType) },
+        authorId: { type: new GraphQLNonNull(UUIDType) },
+      },
+      resolve: async (_obj, args: DbSubscribeToInput, context: DbContext) => {
+        // const subscribedNow = await context.db.user.findMany({
+        //   where: {
+        //     subscribedToUser: {
+        //       some: { subscriberId: args.userId },
+        //     },
+        //   },
+        // });
+
+        // const data = await context.db.subscribersOnAuthors.findMany();
+        const data = await context.db.subscribersOnAuthors.create({
+          data: {
+            subscriberId: args.userId,
+            authorId: args.authorId,
+          },
+        });
+        return JSON.stringify(data);
+      },
+    },
+
+    unsubscribeFrom: {
+      type: new GraphQLNonNull(GraphQLString),
+      args: {
+        userId: { type: new GraphQLNonNull(UUIDType) },
+        authorId: { type: new GraphQLNonNull(UUIDType) },
+      },
+      resolve: async (_obj, args: DbSubscribeToInput, context: DbContext) => {
+        const data = await context.db.subscribersOnAuthors.delete({
+          where: {
+            subscriberId_authorId: {
+              subscriberId: args.userId,
+              authorId: args.authorId,
+            },
+          },
         });
         return JSON.stringify(data);
       },
