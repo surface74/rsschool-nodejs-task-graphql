@@ -1,7 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+import { Loaders } from './loaders.js';
 
 export type DbContext = {
   db: PrismaClient;
+  loaders: Loaders;
 };
 
 export type DbCreateProfileInput = {

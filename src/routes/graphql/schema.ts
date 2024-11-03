@@ -164,14 +164,17 @@ const RootQueryTypeType = new GraphQLObjectType({
       args: {
         id: { type: new GraphQLNonNull(UUIDType) },
       },
-      resolve: async (_obj, args: { id: string }, context: DbContext) => {
-        const data = await context.db.user.findUnique({
-          where: {
-            id: args.id,
-          },
-        });
-        return data;
-      },
+      resolve: (_obj, args: { id: string }, context: DbContext) =>
+        context.loaders.users.load(args.id),
+
+      // async (_obj, args: { id: string }, context: DbContext) => {
+      // const data = await context.db.user.findUnique({
+      //   where: {
+      //     id: args.id,
+      //   },
+      // });
+      // return data;
+      // },
     },
     posts: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(PostType))),
