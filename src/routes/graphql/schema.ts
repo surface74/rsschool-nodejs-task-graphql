@@ -399,15 +399,6 @@ const MutationsType = new GraphQLObjectType({
         authorId: { type: new GraphQLNonNull(UUIDType) },
       },
       resolve: async (_obj, args: DbSubscribeToInput, context: DbContext) => {
-        // const subscribedNow = await context.db.user.findMany({
-        //   where: {
-        //     subscribedToUser: {
-        //       some: { subscriberId: args.userId },
-        //     },
-        //   },
-        // });
-
-        // const data = await context.db.subscribersOnAuthors.findMany();
         const data = await context.db.subscribersOnAuthors.create({
           data: {
             subscriberId: args.userId,
