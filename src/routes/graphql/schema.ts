@@ -57,14 +57,8 @@ const ProfileType = new GraphQLObjectType({
     yearOfBirth: { type: GraphQLInt },
     memberType: {
       type: new GraphQLNonNull(MemberTypeType),
-      resolve: async (source: { memberTypeId: string }, _args, context: DbContext) => {
-        const data = await context.db.memberType.findUnique({
-          where: {
-            id: source.memberTypeId,
-          },
-        });
-        return data;
-      },
+      resolve: async (source: { memberTypeId: string }, _args, context: DbContext) =>
+        context.loaders.memberTypes.load(source.memberTypeId),
     },
   },
 });
