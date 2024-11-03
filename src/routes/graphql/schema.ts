@@ -144,14 +144,8 @@ const RootQueryTypeType = new GraphQLObjectType({
       args: {
         id: { type: new GraphQLNonNull(MemberTypeIdEnum) },
       },
-      resolve: async (_obj, args: { id: MemberTypeId }, context: DbContext) => {
-        const data = await context.db.memberType.findUnique({
-          where: {
-            id: args.id,
-          },
-        });
-        return data;
-      },
+      resolve: async (_obj, args: { id: MemberTypeId }, context: DbContext) =>
+        context.loaders.memberTypes.load(args.id),
     },
     users: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
@@ -166,15 +160,6 @@ const RootQueryTypeType = new GraphQLObjectType({
       },
       resolve: (_obj, args: { id: string }, context: DbContext) =>
         context.loaders.users.load(args.id),
-
-      // async (_obj, args: { id: string }, context: DbContext) => {
-      // const data = await context.db.user.findUnique({
-      //   where: {
-      //     id: args.id,
-      //   },
-      // });
-      // return data;
-      // },
     },
     posts: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(PostType))),
@@ -187,14 +172,8 @@ const RootQueryTypeType = new GraphQLObjectType({
       args: {
         id: { type: new GraphQLNonNull(UUIDType) },
       },
-      resolve: async (_obj, args: { id: string }, context: DbContext, _info) => {
-        const data = await context.db.post.findUnique({
-          where: {
-            id: args.id,
-          },
-        });
-        return data;
-      },
+      resolve: async (_obj, args: { id: string }, context: DbContext) =>
+        context.loaders.posts.load(args.id),
     },
     profiles: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ProfileType))),
@@ -207,14 +186,8 @@ const RootQueryTypeType = new GraphQLObjectType({
       args: {
         id: { type: new GraphQLNonNull(UUIDType) },
       },
-      resolve: async (_obj, args: { id: string }, context: DbContext) => {
-        const data = await context.db.profile.findUnique({
-          where: {
-            id: args.id,
-          },
-        });
-        return data;
-      },
+      resolve: async (_obj, args: { id: string }, context: DbContext) =>
+        context.loaders.profiles.load(args.id),
     },
   },
 });
