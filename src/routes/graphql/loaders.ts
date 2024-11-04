@@ -63,11 +63,22 @@ const getMemberTypes = async (db: PrismaClient, ids: readonly unknown[]) => {
   return result;
 };
 
+const getAllUsers = async (db: PrismaClient, _ids: readonly unknown[]) => {
+  const result = new Array<(LoaderUser | null)[]>();
+
+  const data = await db.user.findMany();
+  result.push(data);
+
+  return result;
+};
+
 export const createLoaders = (db: PrismaClient) => {
   return {
     users: new DataLoader(async (ids) => getUsers(db, ids)),
     posts: new DataLoader(async (ids) => getPosts(db, ids)),
     profiles: new DataLoader(async (ids) => getProfiles(db, ids)),
     memberTypes: new DataLoader(async (ids) => getMemberTypes(db, ids)),
+
+    allUsers: new DataLoader(async (ids) => getAllUsers(db, ids)),
   };
 };

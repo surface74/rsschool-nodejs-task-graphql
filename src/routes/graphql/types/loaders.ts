@@ -32,4 +32,6 @@ export type Loaders = {
   posts: DataLoader<unknown, LoaderPost | null, unknown>;
   profiles: DataLoader<unknown, LoaderProfile | null, unknown>;
   memberTypes: DataLoader<unknown, LoaderMemberType | null, unknown>;
+
+  allUsers: DataLoader<unknown, (LoaderUser | null)[], unknown>;
 };

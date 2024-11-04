@@ -22,6 +22,7 @@ import {
   DbSubscribeToInput,
 } from './types/graphql-db.js';
 import { MemberTypeId } from '../member-types/schemas.js';
+import { LoaderUser } from './types/loaders.js';
 
 const MemberTypeIdEnum = new GraphQLEnumType({
   name: 'MemberTypeId',
@@ -143,8 +144,18 @@ const RootQueryTypeType = new GraphQLObjectType({
     },
     users: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
-      resolve: (_obj, _args, context: DbContext) => {
-        return context.db.user.findMany();
+      resolve: async (_obj, _args, context: DbContext) => {
+        const users = await context.loaders.allUsers.load(['finddMany']);
+        // const result = new Array<LoaderUser | null>();
+
+        // for (const item of users) {
+        //   const user = item as LoaderUser;
+        //   result.push(await context.loaders.users.load(user.id));
+        // }
+        // return result;
+        return users.map((user: LoaderUser | null) =>
+          context.loaders.users.load(user ? user.id : null),
+        );
       },
     },
     user: {
