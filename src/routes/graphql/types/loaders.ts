@@ -34,4 +34,7 @@ export type Loaders = {
   memberTypes: DataLoader<unknown, LoaderMemberType | null, unknown>;
 
   allUsers: DataLoader<unknown, (LoaderUser | null)[], unknown>;
+  allPosts: DataLoader<unknown, (LoaderPost | null)[], unknown>;
+  allProfiles: DataLoader<unknown, (LoaderProfile | null)[], unknown>;
+  allMemberTypes: DataLoader<unknown, (LoaderMemberType | null)[], unknown>;
 };
