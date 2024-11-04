@@ -33,8 +33,8 @@ export type Loaders = {
   profiles: DataLoader<unknown, LoaderProfile | null, unknown>;
   memberTypes: DataLoader<unknown, LoaderMemberType | null, unknown>;
 
-  allUsers: DataLoader<unknown, (LoaderUser | null)[], unknown>;
-  allPosts: DataLoader<unknown, (LoaderPost | null)[], unknown>;
-  allProfiles: DataLoader<unknown, (LoaderProfile | null)[], unknown>;
-  allMemberTypes: DataLoader<unknown, (LoaderMemberType | null)[], unknown>;
+  manyUsers: DataLoader<unknown, (LoaderUser | null)[], unknown>;
+  manyPosts: DataLoader<unknown, (LoaderPost | null)[], unknown>;
+  manyProfiles: DataLoader<unknown, (LoaderProfile | null)[], unknown>;
+  manyMemberTypes: DataLoader<unknown, (LoaderMemberType | null)[], unknown>;
 };

@@ -136,7 +136,7 @@ const RootQueryTypeType = new GraphQLObjectType({
     memberTypes: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(MemberTypeType))),
       resolve: async (_obj, _args, context: DbContext) => {
-        const types = await context.loaders.allMemberTypes.load(['findMany']);
+        const types = await context.loaders.manyMemberTypes.load(['findMany']);
 
         return types.map((type: LoaderMemberType | null) =>
           context.loaders.memberTypes.load(type ? type.id : null),
@@ -154,7 +154,7 @@ const RootQueryTypeType = new GraphQLObjectType({
     users: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(UserType))),
       resolve: async (_obj, _args, context: DbContext) => {
-        const users = await context.loaders.allUsers.load(['findMany']);
+        const users = await context.loaders.manyUsers.load(['findMany']);
 
         return users.map((user: LoaderUser | null) =>
           context.loaders.users.load(user ? user.id : null),
@@ -172,7 +172,7 @@ const RootQueryTypeType = new GraphQLObjectType({
     posts: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(PostType))),
       resolve: async (_obj, _args, context: DbContext) => {
-        const posts = await context.loaders.allPosts.load(['findMany']);
+        const posts = await context.loaders.manyPosts.load(['findMany']);
 
         return posts.map((post: LoaderPost | null) =>
           context.loaders.posts.load(post ? post.id : null),
@@ -190,7 +190,7 @@ const RootQueryTypeType = new GraphQLObjectType({
     profiles: {
       type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(ProfileType))),
       resolve: async (_obj, _args, context: DbContext) => {
-        const profiles = await context.loaders.allProfiles.load(['findMany']);
+        const profiles = await context.loaders.manyProfiles.load(['findMany']);
 
         return profiles.map((profile: LoaderProfile | null) =>
           context.loaders.profiles.load(profile ? profile.id : null),
